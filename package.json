@@ -32,6 +32,7 @@
     "collectCoverage": true,
     "coverageDirectory": "coverage",
     "coverageReporters": [
+      "lcov",
       "html",
       "text"
     ]
