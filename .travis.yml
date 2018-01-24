@@ -4,3 +4,7 @@ node_js:
   - v8
   - v7.6
 
+script:
+  - "npm run test"
+
+after_script: "npm install coveralls@3.0.0 && cat ./coverage/lcov.info | coveralls"
