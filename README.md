@@ -1,5 +1,7 @@
 # prometheus\_snyk\_exporter
 
+[![Build Status](https://travis-ci.org/dnanexus/prometheus_snyk_exporter.svg?branch=master)](https://travis-ci.org/dnanexus/prometheus_snyk_exporter) [![Known Vulnerabilities](https://snyk.io/test/github/dnanexus/prometheus_snyk_exporter/badge.svg)](https://snyk.io/test/github/dnanexus/prometheus_snyk_exporter) [![Coverage Status](https://coveralls.io/repos/github/dnanexus/prometheus_snyk_exporter/badge.svg?branch=master)](https://coveralls.io/github/dnanexus/prometheus_snyk_exporter?branch=master)
+
 ## Security through Observability!
 
 This project integrates the Prometheus monitoring project with the Snyk security service.
