@@ -4,9 +4,9 @@
 
 ## Security through Observability!
 
-This project integrates the Prometheus monitoring project with the Snyk security service.
+This project integrates the [Prometheus](https://prometheus.io) monitoring project with the [Snyk](https://snyk.io) security service.
 
-A [prometheus exporter](https://prometheus.io) scrapes the [snyk.io API](https://snyk.docs.apiary.io), collects aggregate information about your organiation's vulnerabilities, and exposes it as prometheus metrics.
+A [prometheus exporter](https://prometheus.io/docs/instrumenting/exporters/) scrapes the [snyk.io API](https://snyk.docs.apiary.io), collects aggregate information about your organiation's vulnerabilities, and exposes it as prometheus metrics.
 
 ## Motivation
 
