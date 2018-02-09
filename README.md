@@ -181,7 +181,7 @@ Individual vulnerabilities within a given project are de-duplicated using the sn
 
 ### Stack
 
-* Unit testing is done with [Jest](https://facebook.github.io/jest/)
+* Unit testing is done with [Mocha](https://mochajs.org/)
 * HTTP mocking uses [nock](https://github.com/node-nock/nock)
 
 ### Testing
