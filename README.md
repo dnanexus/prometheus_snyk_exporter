@@ -71,12 +71,12 @@ Add something similar to following to your `prometheus.yml` file:
 
 ```yml
   - job_name: 'snyk'
-    scrape_interval: 600s
+    scrape_interval: 60s
     static_configs:
       - targets: ['localhost:9207']
 ```
 
-Note: Please be nice to the snyk API, and don't configure an aggressive scrape interval.  Scraping every 10 minutes (600s) or even every hour (3600s) should be sufficient.
+Note: Please be nice to the snyk API, and don't configure an aggressive scrape interval.  Scraping every 60 seconds is recommended.  Any more frequent, and you might run into rate limiting.  Any less frequent, and you might wind up with Prometheus treating your metrics as stale.
 
 If you're running the exporter on a different server than your prometheus server, substitute it for `localhost`.
 
