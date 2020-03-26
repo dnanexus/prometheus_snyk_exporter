@@ -28,6 +28,7 @@ const POST_DATA = {
 var BASE_URL;
 var ORG_NAME;
 var SNYK_API_TOKEN;
+var POLL_TIME_SECONDS;
 var httpClient;
 
 const up = new prometheusClient.Gauge({name: 'up', help: 'UP Status'});
@@ -35,13 +36,13 @@ const up = new prometheusClient.Gauge({name: 'up', help: 'UP Status'});
 const vulnerabilitiesBySeverity = new prometheusClient.Gauge({
   name: 'snyk_num_vulnerabilities_by_severity',
   help: 'Number of Snyk vulnerabilities by severity',
-  labelNames: ['project', 'severity']
+  labelNames: ['project', 'path', 'severity']
 });
 
 const vulnerabilitiesByType = new prometheusClient.Gauge({
   name: 'snyk_num_vulnerabilities_by_type',
   help: 'Number of Snyk vulnerabilities by type',
-  labelNames: ['project', 'type']
+  labelNames: ['project', 'path', 'type']
 });
 
 if (require.main === module) {
@@ -50,6 +51,7 @@ if (require.main === module) {
   options.SNYK_API_TOKEN = process.env.SNYK_API_TOKEN;
   options.ORG_NAME = process.env.SNYK_ORG_NAME;
   options.BASE_URL = process.env.SNYK_API_BASE_URL;
+  options.POLL_TIME_SECONDS = process.env.POLL_TIME_SECONDS;
 
   init(options);
   startServer();
@@ -62,6 +64,7 @@ function init (options) {
   if (!options.ORG_NAME) {
     throw new Error('Environment variable SNYK_ORG_NAME must be set');
   }
+  POLL_TIME_SECONDS = options.POLL_TIME_SECONDS || 600;
   SNYK_API_TOKEN = options.SNYK_API_TOKEN;
   ORG_NAME = options.ORG_NAME;
   BASE_URL = options.BASE_URL || 'https://snyk.io/api/v1';
@@ -71,17 +74,33 @@ function init (options) {
       'Authorization': SNYK_API_TOKEN
     }
   });
+
+}
+
+async function backgroundWorker () {
+  console.log('Background refresh starting...');
+
+  try {
+    var response = await getProjects(ORG_NAME);
+    await processProjects(response.data);
+
+    console.log('Background refresh completed.');
+    up.set(1);
+  } catch (err) {
+    up.set(0);
+    console.warn(error.message || error);
+  }
+  console.log(`Sleeping ${POLL_TIME_SECONDS} seconds`)
+
+  setTimeout(backgroundWorker, POLL_TIME_SECONDS * 1000);
 }
 
 function startServer () {
+  setTimeout(backgroundWorker, 1000);
   metricsServer.get('/metrics', async (req, res) => {
     res.contentType(prometheusClient.register.contentType);
 
     try {
-      resetStats();
-      const response = await getProjects(ORG_NAME);
-      await processProjects(response.data);
-
       res.send(prometheusClient.register.metrics());
     } catch (error) {
       // error connecting
@@ -99,12 +118,6 @@ function shutdown () {
   metricsServer.close();
 }
 
-function resetStats () {
-  up.set(1);
-  vulnerabilitiesBySeverity.reset();
-  vulnerabilitiesByType.reset();
-}
-
 async function getProjects (orgName) {
   return httpClient.get(`/org/${orgName}/projects`);
 }
@@ -117,11 +130,15 @@ async function processProjects (projectData) {
     throw new Error('Unable to find org id in response data');
   }
 
+  if (DEBUG) {
+    console.log(`Retrieved ${projectData.projects.length} projects`);
+  }
+
   for (let i = 0; i < projectData.projects.length; i++) {
     const project = projectData.projects[i];
 
     if (DEBUG) {
-      console.log(`Project Name: ${project.projectName} Project ID: ${project.projectId}`);
+      console.log(`Project Name: ${project.name} Project ID: ${project.id}`);
     }
 
     let issueData = await getIssues(orgId, project);
@@ -131,8 +148,13 @@ async function processProjects (projectData) {
     }
 
     let countsForProject = getVulnerabilityCounts(issueData.data.issues);
-    setSeverityGauges(project.name, project.Id, countsForProject.severities);
-    setTypeGauges(project.name, project.Id, countsForProject.types);
+
+    let fullName = project.name.split(':');
+    let projectName = (fullName.length) ? fullName[0] : 'unknown';
+    let fileName = (fullName.length > 1) ? fullName[1] : 'unknown';
+
+    setSeverityGauges(projectName, fileName, project.Id, countsForProject.severities);
+    setTypeGauges(projectName, fileName, project.Id, countsForProject.types);
   }
 }
 
@@ -185,20 +207,22 @@ function getVulnerabilityCounts (issues) {
   return results;
 }
 
-function setSeverityGauges (projectName, projectId, severities) {
+function setSeverityGauges (projectName, fileName, projectId, severities) {
   _.each(severities, (count, severity) => {
     vulnerabilitiesBySeverity.set({
       project: projectName,
+      path: fileName,
       severity: severity
     }, count);
   });
 }
 
-function setTypeGauges (projectName, projectId, types) {
+function setTypeGauges (projectName, fileName, projectId, types) {
   _.each(types, (count, type) => {
     // console.log(`Type: ${typeName}, Count: ${types[typeName]}`);
     vulnerabilitiesByType.set({
       project: projectName,
+      path: fileName,
       type: type
     }, count);
   });

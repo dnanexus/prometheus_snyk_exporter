@@ -29,7 +29,7 @@ A Grafana dashboard is provided so you can visualize your snyk vulnerabilities o
 
 ### NodeJS
 
-Note: Requires node > 7.6 for async/await support. 
+Note: Requires node > 7.6 for async/await support.
 
 ```bash
 git clone git@github.com:dnanexus/prometheus_snyk_exporter.git
@@ -37,6 +37,7 @@ cd prometheus_snyk_exporter
 npm install
 export SNYK_ORG_NAME=CompuGlobalHyperMegaNet
 export SNYK_API_TOKEN=xxxxx-yyyyy-zzzzzz
+export POLL_TIME_SECONDS=60
 node index.js
 ```
 
@@ -50,7 +51,7 @@ docker run \
     -e SNYK_ORG_NAME=CompuGlobalHyperMegaNet \
     -e SNYK_API_TOKEN=xxxxx-yyyyy-zzzzzz \
     -p 9207:9207 \
-    dnanexus/prometheus_snyk_exporter  
+    dnanexus/prometheus_snyk_exporter
 ```
 
 ## Usage
@@ -65,7 +66,7 @@ curl http://localhost:9207/metrics
 
 It may take 5-10 seconds for the API scrape to complete.  After, you should see your metrics similar to the format shown further below.
 
-### Prometheus configuration 
+### Prometheus configuration
 
 Add something similar to following to your `prometheus.yml` file:
 
@@ -82,13 +83,13 @@ If you're running the exporter on a different server than your prometheus server
 
 ## Metrics Format
 
-This exporter exposes two different metrics.  
+This exporter exposes two different metrics.
 
 Note: The samples below contain dummy generated data and are not taken from an actual security scan.
 
 ### snyk\_num\_vulnerabilities\_by\_severity
 
-This metric gives you a breakdown of how many high, medium, and low-severity issues exist per-project.  
+This metric gives you a breakdown of how many high, medium, and low-severity issues exist per-project.
 
 ```
 # HELP snyk_num_vulnerabilities_by_severity Number of Snyk vulnerabilities by severity
@@ -119,7 +120,7 @@ snyk_num_vulnerabilities_by_type{project="frink",type="Uninitialized Memory Expo
 
 ## Alerting
 
-Let's say that your organization agreed to an SLO where each team would have 7 days to fix low-severity vulnerabilities.  
+Let's say that your organization agreed to an SLO where each team would have 7 days to fix low-severity vulnerabilities.
 
 You could define an alert like this to alert the team if their SLO is broken:
 
@@ -190,4 +191,12 @@ Run unit tests:
 
 ```
 npm run test
+```
+
+#### Deployment
+
+```sh
+VERSION=$(git rev-parse --short HEAD) docker-compose build
+VERSION=$(git rev-parse --short HEAD) docker-compose run prometheus_snyk_exporter npm test
+VERSION=$(git rev-parse --short HEAD) docker-compose push
 ```

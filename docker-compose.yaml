@@ -1,0 +1,15 @@
+---
+version: "3.2"
+services:
+
+  prometheus_snyk_exporter:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - .:/usr/src/app
+    image: quay.io/verygoodsecurity/prometheus_snyk_exporter:${VERSION-latest}
+    environment:
+      SNYK_ORG_NAME: CompuGlobalHyperMegaNet
+      SNYK_API_TOKEN: xxxxx-yyyyy-zzzzzz
+      POLL_TIME_SECONDS: 60

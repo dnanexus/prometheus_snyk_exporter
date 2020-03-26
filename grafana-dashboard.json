@@ -204,7 +204,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "snyk_num_vulnerabilities_by_severity{severity=\"high\", project=\"$Project\"}",
+              "expr": "sum(snyk_num_vulnerabilities_by_severity{severity=\"high\", project=\"$Project\"})",
               "format": "time_series",
               "intervalFactor": 2,
               "refId": "A"
@@ -280,7 +280,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "snyk_num_vulnerabilities_by_severity{severity=\"medium\", project=\"$Project\"}",
+              "expr": "sum(snyk_num_vulnerabilities_by_severity{severity=\"medium\", project=\"$Project\"})",
               "format": "time_series",
               "intervalFactor": 2,
               "refId": "A"
@@ -356,7 +356,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "snyk_num_vulnerabilities_by_severity{severity=\"low\", project=\"$Project\"}",
+              "expr": "sum(snyk_num_vulnerabilities_by_severity{severity=\"low\", project=\"$Project\"})",
               "format": "time_series",
               "intervalFactor": 2,
               "refId": "A"
@@ -415,7 +415,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "snyk_num_vulnerabilities_by_severity{project=\"$Project\"}",
+              "expr": "sum(snyk_num_vulnerabilities_by_severity{project=\"$Project\"}) by (severity)",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,

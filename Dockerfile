@@ -1,4 +1,4 @@
-FROM node:8.4.0-alpine
+FROM node:alpine
 
 # Create a directory where our app will be placed
 RUN mkdir -p /usr/src/app
