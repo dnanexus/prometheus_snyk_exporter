@@ -10,7 +10,9 @@
     "test": "nyc mocha",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "format": "standard --fix",
-    "build": "docker build . -t dnanexus/prometheus_snyk_exporter"
+    "build": "docker build . -t dnanexus/prometheus_snyk_exporter",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "author": "",
   "license": "Apache-2.0",
@@ -19,7 +21,8 @@
     "express": "^4.17.1",
     "lodash": "^4.17.13",
     "luxon": "^1.15.0",
-    "prom-client": "^11.3.0"
+    "prom-client": "^11.3.0",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
@@ -39,5 +42,6 @@
       "beforeEach",
       "afterEach"
     ]
-  }
+  },
+  "snyk": true
 }
